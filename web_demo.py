@@ -62,7 +62,7 @@ def request_model(input_text, temperature, top_p, image_prompt, result_previous)
     return "", result_text
 
 
-DESCRIPTION = '''# <a href="https://github.com/THUDM/VisualGLM-6B">VisualGLM</a>'''
+DESCRIPTION = '''# <a href="https://github.com/JieGeng1998-10-13/visualglm">上海市交通系统商品咨询</a>'''
 
 MAINTENANCE_NOTICE1 = 'Hint 1: If the app report "Something went wrong, connection error out", please turn off your proxy and retry.\nHint 2: If you upload a large size of image like 10MB, it may take some time to upload and process. Please be patient and wait.'
 MAINTENANCE_NOTICE2 = '提示1: 如果应用报了“Something went wrong, connection error out”的错误，请关闭代理并重试。\n提示2: 如果你上传了很大的图片，比如10MB大小，那将需要一些时间来上传和处理，请耐心等待。'
@@ -71,10 +71,10 @@ NOTES = 'This app is adapted from <a href="https://github.com/THUDM/VisualGLM-6B
 
 
 def clear_fn(value):
-    return "", [("", "Hi, What do you want to know about this image?")], None
+    return "", [("", "你好，请提供想要咨询的商品图片！")], None
 
 def clear_fn2(value):
-    return [("", "Hi, What do you want to know about this image?")]
+    return [("", "你好，请提供想要咨询的商品图片！")]
 
 
 def main(args):
@@ -87,22 +87,24 @@ def main(args):
         with gr.Row():
             with gr.Column(scale=4.5):
                 with gr.Group():
-                    input_text = gr.Textbox(label='Input Text', placeholder='Please enter text prompt below and press ENTER.')
+                    input_text = gr.Textbox(label='输入文本', placeholder='请输入想要咨询的信息')
                     with gr.Row():
-                        run_button = gr.Button('Generate')
-                        clear_button = gr.Button('Clear')
+                        run_button = gr.Button('生成')
+                        clear_button = gr.Button('清除')
 
                     image_prompt = gr.Image(type="filepath", label="Image Prompt", value=None)
                 with gr.Row():
                     temperature = gr.Slider(maximum=1, value=0.8, minimum=0, label='Temperature')
                     top_p = gr.Slider(maximum=1, value=0.4, minimum=0, label='Top P')
-                with gr.Group():
-                    with gr.Row():
-                        maintenance_notice = gr.Markdown(MAINTENANCE_NOTICE1)
+                # with gr.Group():
+                #     with gr.Row():
+                #         maintenance_notice = gr.Markdown(MAINTENANCE_NOTICE1)
             with gr.Column(scale=5.5):
-                result_text = gr.components.Chatbot(label='Multi-round conversation History', value=[("", "Hi, What do you want to know about this image?")]).style(height=550)
+                # result_text = gr.components.Chatbot(label='Multi-round conversation History', value=[("", "Hi, What do you want to know about this image?")]).style(height=550)
+                result_text = gr.components.Chatbot(label='Multi-round conversation History', value=[("", "你好，请提供想要咨询的商品图片！")], height=550)
 
-        gr.Markdown(NOTES)
+
+        #gr.Markdown(NOTES)
 
         print(gr.__version__)
         run_button.click(fn=request_model,inputs=[input_text, temperature, top_p, image_prompt, result_text],
@@ -115,8 +117,8 @@ def main(args):
 
         print(gr.__version__)
 
-    demo.queue(concurrency_count=10)
-    demo.launch(share=args.share)
+    #demo.queue(concurrency_count=10)
+    demo.launch(share=args.share, max_threads=10)
 
 
 if __name__ == '__main__':
