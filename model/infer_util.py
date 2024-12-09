@@ -18,7 +18,13 @@ def get_infer_setting(gpu_device=0, quant=None):
         skip_init=True,
         device='cuda' if quant is None else 'cpu',
     )
-    model, args = VisualGLMModel.from_pretrained('visualglm-6b', args)
+    #model, args = VisualGLMModel.from_pretrained('visualglm-6b', args)
+    #model, args = VisualGLMModel.from_pretrained('/mnt/workspace/visualglm_Jie/checkpoints/finetune-visualglm-6b-11-27-10-23', args)
+    #finetuned_model = "/mnt/workspace/visualglm_Jie/checkpoints/finetune-visualglm-6b-11-29-13-08"
+    finetuned_model = "/mnt/workspace/visualglm_Jie/checkpoints/finetune-visualglm-6b-12-02-14-48"
+    #/mnt/workspace/visualglm_Jie/checkpoints/finetune-visualglm-6b-12-02-14-48
+    from finetune_visualglm import FineTuneVisualGLMModel
+    model, args = FineTuneVisualGLMModel.from_pretrained(finetuned_model, args)
     model.add_mixin('auto-regressive', CachedAutoregressiveMixin())
     assert quant in [None, 4, 8]
     if quant is not None:
