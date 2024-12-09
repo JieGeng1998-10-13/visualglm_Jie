@@ -7,6 +7,8 @@ from sat.training.deepspeed_training import training_main
 from model import VisualGLMModel
 from sat.model.finetune import PTuningV2Mixin
 from sat.model.finetune.lora2 import LoraMixin
+from transformers import AutoTokenizer
+
 
 class FineTuneVisualGLMModel(VisualGLMModel):
     def __init__(self, args, transformer=None, **kw_args):
@@ -114,7 +116,12 @@ class FewShotDataset(Dataset):
         self.input_ids = []
         self.labels = []
         for item in data:
-            image = processor(Image.open(item['img']).convert('RGB'))
+            #image = processor(Image.open(item['img']).convert('RGB'))
+            try:
+                image = processor(Image.open(item['img']).convert('RGB'))
+            except Exception as e:
+                print(f"Warning: failed to load image {item['img']}, skipping. Error: {e}")
+                continue
             input0 = tokenizer.encode("<img>", add_special_tokens=False)
             input1 = [tokenizer.pad_token_id] * args.image_length
             input2 = tokenizer.encode("</img>问："+item['prompt']+"\n答：", add_special_tokens=False)
@@ -154,7 +161,8 @@ class FewShotDataset(Dataset):
 
 
 def create_dataset_function(path, args):
-    tokenizer = get_tokenizer(args)
+    #tokenizer = get_tokenizer(args)
+    tokenizer = AutoTokenizer.from_pretrained("./chatglm", trust_remote_code=True)
     image_processor = BlipImageEvalProcessor(224)
 
     dataset = FewShotDataset(path, image_processor, tokenizer, args)
@@ -179,7 +187,8 @@ if __name__ == '__main__':
     if torch.cuda.is_available():
         model = model.to('cuda')
         args.device = 'cuda'
-    tokenizer = get_tokenizer(args)
+    tokenizer = AutoTokenizer.from_pretrained("./chatglm", trust_remote_code=True)
+    #tokenizer = get_tokenizer(args)
     label_pad_token_id = -100 if args.ignore_pad_token_for_loss else tokenizer.pad_token_id
     def data_collator(examples):
         for example in examples:
